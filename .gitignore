@@ -1,5 +1,8 @@
 # ignore built target
 /target
 
-#ignore every db files
+# ignore every db files
 *.db
+
+# ignore the Cargo.lock file
+Cargo.lock
