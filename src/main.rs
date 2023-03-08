@@ -1,17 +1,33 @@
 use sqlite;
+use sqlite::Connection;
 use sqlite::State;
+use text_io::read;
+
+fn print_account(connect: Connection, account: String) {
+    let query = format!("SELECT * FROM {}", account);
+    let mut statement = connect.prepare(query).unwrap();
+
+    println!("| name | date | amount |");
+    while let Ok(State::Row) = statement.next() {
+        println!("| {name} | {date} | {value} |",
+                 name = statement.read::<String, _>("name").unwrap(),
+                 date = statement.read::<String, _>("date").unwrap(),
+                 value = statement.read::<f64, _>("value").unwrap());
+    }
+}
+
+fn db_connect() -> Connection {
+    println!("Name of db to connect : ");
+    let _db: String = read!();
+    // _db = String::from("{}.db");
+    println!("Trying to connect to {}", _db);
+    let connection = sqlite::open(_db).unwrap();
+    println!("Connected sucessfully !");
+    return connection;
+}
 
 fn main() {
-    let _connection = sqlite::open("test.db").unwrap();
-    // _connection.execute("CREATE TABLE account_1 (name TEXT, date TEXT, value FLOAT);").unwrap();
-    _connection.execute("INSERT INTO account_1 VALUES ('Courses Carrefour', '11/01/2001', -54.50)").unwrap();
-    let query = "SELECT * FROM account_1";
-    let mut statement = _connection.prepare(query).unwrap();
-    //statement.bind((1, 0)).unwrap();
-
-    while let Ok(State::Row) = statement.next() {
-        println!("name = {}", statement.read::<String, _>("name").unwrap());
-        println!("date = {}", statement.read::<String, _>("date").unwrap());
-        println!("value = {}", statement.read::<i64, _>("name").unwrap());
-    }
+    let connection = db_connect();
+    let account = String::from("account_1");
+    print_account(connection, account);
 }

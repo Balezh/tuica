@@ -1,0 +1,5 @@
+# ignore built target
+/target
+
+#ignore every db files
+*.db
