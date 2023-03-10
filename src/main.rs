@@ -16,6 +16,13 @@ fn print_account(connect: Connection, account: String) {
     }
 }
 
+fn create_account(connect: Connection, new_account: String) {
+    let query = format!("CREATE TABLE {} (name STRING, date STRING, 2nd_account STRING, amount FLOAT)", new_account);
+    connect.prepare(query).unwrap();
+}
+
+// fn create_transac(connect: Connection, )
+
 fn db_connect() -> Connection {
     println!("Name of db to connect : ");
     let _db: String = read!();
