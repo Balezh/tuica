@@ -3,7 +3,8 @@ use sqlite::Connection;
 use sqlite::State;
 use text_io::read;
 
-fn print_account(connect: Connection, account: String) {
+fn print_account(connect: &Connection, 
+                 account: String) {
     let query = format!("SELECT * FROM {}", account);
     let mut statement = connect.prepare(query).unwrap();
 
@@ -16,25 +17,52 @@ fn print_account(connect: Connection, account: String) {
     }
 }
 
-fn create_account(connect: Connection, new_account: String) {
-    let query = format!("CREATE TABLE {} (name STRING, date STRING, 2nd_account STRING, amount FLOAT)", new_account);
-    connect.prepare(query).unwrap();
+/// Create new account in current db
+fn create_account(connect: &Connection, 
+                  new_account: String) 
+{
+    let query = format!("CREATE TABLE {} (name STRING, date STRING, otherAccount STRING, amount FLOAT)", new_account);
+    connect.execute(query).unwrap();
 }
 
-// fn create_transac(connect: Connection, )
+/// Used to add a transaction from an account to another 
+fn create_transac(connect: &Connection, 
+                  account_1: String,
+                  account_2: String,
+                  name: String,
+                  date: String,
+                  amount: f64) 
+{
+    let query_1 = format!("INSERT INTO {} VALUES ('{}','{}','{}','{}')", account_1, name, date, account_2, amount);
+    let query_2 = format!("INSERT INTO {} VALUES ('{}','{}','{}','{}')", account_2, name, date, account_1, -amount);
+    connect.execute(query_1).unwrap();
+    connect.execute(query_2).unwrap();
+} 
+
+/// Return actual value of account
+fn get_total(connect: &Connection, account: String) -> f64 
+{
+    return 0.0;
+}
 
 fn db_connect() -> Connection {
     println!("Name of db to connect : ");
-    let _db: String = read!();
+    let db: String = read!();
     // _db = String::from("{}.db");
-    println!("Trying to connect to {}", _db);
-    let connection = sqlite::open(_db).unwrap();
+    println!("Trying to connect to {}", db);
+    let connection = sqlite::open(db).unwrap();
     println!("Connected sucessfully !");
     return connection;
 }
 
 fn main() {
+    /* test -- Begin -- */
     let connection = db_connect();
-    let account = String::from("account_1");
-    print_account(connection, account);
+    create_account(&connection, String::from("account_1"));
+    create_account(&connection, String::from("account_2"));
+    create_transac(&connection, String::from("account_1"),
+        String::from("account_2"), 
+        String::from("test_1"),
+        String::from("11/01/2001"), 51.69);
+    /* test -- End -- */
 }
